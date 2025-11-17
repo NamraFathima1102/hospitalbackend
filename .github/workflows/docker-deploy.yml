@@ -1,0 +1,30 @@
+name: HMS Backend Docker Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build Docker Image
+      run: docker build -t hms-backend:latest .
+
+    - name: Run container without volume
+      run: |
+        docker stop hms-backend || true
+        docker rm hms-backend || true
+        docker run -d --name hms-backend -p 8000:8000 hms-backend:latest
+
+    - name: Show running containers
+      run: docker ps
